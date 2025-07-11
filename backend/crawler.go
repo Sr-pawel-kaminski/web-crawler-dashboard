@@ -13,8 +13,6 @@ func AnalyzeURL(urlObj *URL) error {
 	// Set status to running
 	urlObj.Status = "running"
 	DB.Save(urlObj)
-
-	// Check if analysis was stopped before starting
 	if err := DB.First(urlObj, urlObj.ID).Error; err != nil {
 		return err
 	}
