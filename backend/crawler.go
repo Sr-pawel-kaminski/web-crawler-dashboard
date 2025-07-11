@@ -21,7 +21,6 @@ func AnalyzeURL(urlObj *URL) error {
 	if urlObj.Status == "stopped" {
 		return nil // Exit early if stopped
 	}
-
 	resp, err := http.Get(urlObj.Address)
 	if err != nil {
 		urlObj.Status = "error"
