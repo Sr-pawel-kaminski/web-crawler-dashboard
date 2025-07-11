@@ -20,7 +20,6 @@ export function UrlTable({ urls, onDelete, onRowClick, onStartAnalysis, onStopAn
   const [dialogOpen, setDialogOpen] = useState(false);
   const [newUrl, setNewUrl] = useState("");
 
-  // Process URLs to add computed fields for sorting
   const processedUrls = urls.map(url => ({
     ...url,
     internal_links: url.results?.[0]?.internal_links ?? 0,

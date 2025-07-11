@@ -19,7 +19,7 @@ type AnalysisResult struct {
 	URLID         uint           `json:"url_id"`
 	HTMLVersion   string         `json:"html_version"`
 	Title         string         `json:"title"`
-	Headings      map[string]int `json:"headings" gorm:"serializer:json"` // Fixed: Add serializer
+	Headings      map[string]int `json:"headings" gorm:"serializer:json"`
 	HeadingsJSON  string         `json:"-" gorm:"column:headings"`
 	InternalLinks int            `json:"internal_links"`
 	ExternalLinks int            `json:"external_links"`
@@ -29,9 +29,7 @@ type AnalysisResult struct {
 	Links         []Link         `json:"links" gorm:"foreignKey:ResultID;constraint:OnDelete:CASCADE"`
 }
 
-// Add these methods to AnalysisResult
 func (ar *AnalysisResult) AfterFind() error {
-	// Unmarshal headings from JSON string
 	if ar.HeadingsJSON != "" {
 		return json.Unmarshal([]byte(ar.HeadingsJSON), &ar.Headings)
 	}
@@ -39,7 +37,6 @@ func (ar *AnalysisResult) AfterFind() error {
 }
 
 func (ar *AnalysisResult) BeforeSave() error {
-	// Marshal headings to JSON string
 	if ar.Headings != nil {
 		data, err := json.Marshal(ar.Headings)
 		if err != nil {

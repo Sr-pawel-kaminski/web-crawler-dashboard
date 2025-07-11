@@ -10,14 +10,13 @@ import (
 )
 
 func AnalyzeURL(urlObj *URL) error {
-	// Set status to running
 	urlObj.Status = "running"
 	DB.Save(urlObj)
 	if err := DB.First(urlObj, urlObj.ID).Error; err != nil {
 		return err
 	}
 	if urlObj.Status == "stopped" {
-		return nil // Exit early if stopped
+		return nil
 	}
 	resp, err := http.Get(urlObj.Address)
 	if err != nil {
@@ -34,7 +33,6 @@ func AnalyzeURL(urlObj *URL) error {
 		return err
 	}
 
-	// HTML version
 	htmlVersion := "unknown"
 	if goquery.NewDocumentFromNode(doc.Nodes[0]).Find("html").Length() > 0 {
 		if doc.Find("!DOCTYPE html").Length() > 0 {
@@ -44,10 +42,8 @@ func AnalyzeURL(urlObj *URL) error {
 		}
 	}
 
-	// Title
 	title := doc.Find("title").Text()
 
-	// Headings
 	headings := map[string]int{
 		"h1": doc.Find("h1").Length(),
 		"h2": doc.Find("h2").Length(),
@@ -57,10 +53,8 @@ func AnalyzeURL(urlObj *URL) error {
 		"h6": doc.Find("h6").Length(),
 	}
 
-	// Debug logging
 	fmt.Printf("Heading counts: %+v\n", headings)
 
-	// Links
 	internalLinks, externalLinks, brokenLinks := 0, 0, 0
 	var links []Link
 	base := urlObj.Address
@@ -69,12 +63,11 @@ func AnalyzeURL(urlObj *URL) error {
 	}
 	client := &http.Client{Timeout: 5 * time.Second}
 
-	// Check if analysis was stopped before processing links
 	if err := DB.First(urlObj, urlObj.ID).Error; err != nil {
 		return err
 	}
 	if urlObj.Status == "stopped" {
-		return nil // Exit early if stopped
+		return nil
 	}
 	doc.Find("a[href]").Each(func(i int, s *goquery.Selection) {
 		href, _ := s.Attr("href")
@@ -116,7 +109,6 @@ func AnalyzeURL(urlObj *URL) error {
 		links = append(links, link)
 	})
 
-	// Login form
 	loginForm := false
 	doc.Find("form").Each(func(i int, s *goquery.Selection) {
 		if s.Find("input[type='password']").Length() > 0 {
@@ -124,15 +116,13 @@ func AnalyzeURL(urlObj *URL) error {
 		}
 	})
 
-	// Check if analysis was stopped before storing results
 	if err := DB.First(urlObj, urlObj.ID).Error; err != nil {
 		return err
 	}
 	if urlObj.Status == "stopped" {
-		return nil // Exit early if stopped
+		return nil
 	}
 
-	// Store analysis result
 	result := AnalysisResult{
 		URLID:         urlObj.ID,
 		HTMLVersion:   htmlVersion,
@@ -152,7 +142,6 @@ func AnalyzeURL(urlObj *URL) error {
 		return err
 	}
 
-	// Set status to done only if not stopped
 	if err := DB.First(urlObj, urlObj.ID).Error; err != nil {
 		return err
 	}

@@ -14,7 +14,6 @@ func main() {
 	InitDB()
 	r := gin.Default()
 
-	// Use a custom CORS config
 	r.Use(cors.New(cors.Config{
 		AllowOrigins:     []string{"http://localhost:5173"},
 		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
@@ -44,7 +43,6 @@ func main() {
 	r.Run(":8080")
 }
 
-// Handler stubs
 func AddURLHandler(c *gin.Context) {
 	var req struct {
 		Address string `json:"address" binding:"required,url"`
@@ -78,10 +76,8 @@ func DeleteURLHandler(c *gin.Context) {
 		return
 	}
 
-	// Use transaction to ensure all related data is deleted
 	tx := DB.Begin()
 
-	// Delete all related data
 	tx.Where("result_id IN (SELECT id FROM analysis_results WHERE url_id = ?)", id).Delete(&Link{})
 	tx.Where("url_id = ?", id).Delete(&AnalysisResult{})
 	tx.Delete(&URL{}, id)
@@ -142,12 +138,10 @@ func StartAnalysisHandler(c *gin.Context) {
 		return
 	}
 
-	// Only start if not already running
 	if url.Status != "running" {
 		url.Status = "running"
 		DB.Save(&url)
 
-		// Start analysis in background
 		go func() {
 			if err := AnalyzeURL(&url); err != nil {
 				fmt.Printf("Analysis failed for URL %s: %v\n", url.Address, err)
@@ -170,7 +164,6 @@ func StopAnalysisHandler(c *gin.Context) {
 		return
 	}
 
-	// Stop analysis by setting status to stopped
 	if url.Status == "running" {
 		url.Status = "stopped"
 		DB.Save(&url)
@@ -200,12 +193,10 @@ func UpdateURLHandler(c *gin.Context) {
 		return
 	}
 
-	// Update the URL address
 	url.Address = req.Address
-	// Reset status to queued and clear previous results
+
 	url.Status = "queued"
 
-	// Delete previous analysis results
 	DB.Where("url_id = ?", id).Delete(&AnalysisResult{})
 
 	if err := DB.Save(&url).Error; err != nil {

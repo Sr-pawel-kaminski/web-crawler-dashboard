@@ -20,7 +20,6 @@ export default function Dashboard() {
     }
   }, []);
 
-  // Initial load
   useEffect(() => {
     const initialLoad = async () => {
       setLoading(true);
@@ -30,7 +29,6 @@ export default function Dashboard() {
     initialLoad();
   }, [loadUrls]);
 
-  // Auto-refresh only when there are URLs with "running" status
   useEffect(() => {
     const hasRunningUrls = urls.some(url => url.status === "running");
     
@@ -46,7 +44,7 @@ export default function Dashboard() {
   const handleAddUrl = async (address: string) => {
     try {
       await addUrl(address);
-      await loadUrls(); // Refresh to show new URL
+      await loadUrls();
     } catch (error) {
       setError(error instanceof Error ? error.message : 'Failed to add URL');
     }
@@ -55,7 +53,7 @@ export default function Dashboard() {
   const handleDeleteUrl = async (id: number) => {
     try {
       await deleteUrl(id);
-      await loadUrls(); // Refresh to remove deleted URL
+      await loadUrls(); 
     } catch (error) {
       setError(error instanceof Error ? error.message : 'Failed to delete URL');
     }
@@ -68,7 +66,7 @@ export default function Dashboard() {
   const handleStartAnalysis = async (id: number) => {
     try {
       await startAnalysis(id);
-      await loadUrls(); // Refresh to show updated status
+      await loadUrls(); 
     } catch (error) {
       setError(error instanceof Error ? error.message : 'Failed to start analysis');
     }
@@ -77,7 +75,7 @@ export default function Dashboard() {
   const handleStopAnalysis = async (id: number) => {
     try {
       await stopAnalysis(id);
-      await loadUrls(); // Refresh to show updated status
+      await loadUrls(); 
     } catch (error) {
       setError(error instanceof Error ? error.message : 'Failed to stop analysis');
     }
@@ -86,7 +84,7 @@ export default function Dashboard() {
   const handleEditUrl = async (id: number, newAddress: string) => {
     try {
       await updateUrl(id, newAddress);
-      await loadUrls(); // Refresh to show updated URL
+      await loadUrls(); 
     } catch (error) {
       setError(error instanceof Error ? error.message : 'Failed to update URL');
     }
@@ -107,8 +105,8 @@ export default function Dashboard() {
         display: 'flex', 
         justifyContent: 'center', 
         alignItems: 'center',
-        mt: 12.5, // 100px from top (12.5 * 8px = 100px)
-        mb: 12.5  // 100px between heading and table (12.5 * 8px = 100px)
+        mt: 12.5, 
+        mb: 12.5  
       }}>
         <Typography variant="h4" align="center">
           Web Crawler Dashboard
